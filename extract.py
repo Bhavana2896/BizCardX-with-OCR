@@ -77,27 +77,6 @@ def extract_information(result,result_1):
     # Compile the address regex pattern
     # address_regex = re.compile(r'[\w\s\.\,]*[\w\s,]+')
     name_regex = re.compile(r'[A-Za-z]{2,25}( [A-Za-z]{2,25})?')
-    # company_name_regex = r'(?:[A-Z][a-z0-9\s]+\s?(?:Inc\.|Agency|Co\.|Co\.|Electricals|Restaurant|AIRLINES|INSURANCE|MEDICAL|digitals))|(?:[A-Z][a-z\s]*[A-Z]\s?(?:Inc\.|Agency|Co\.|Co\.|Electricals|Restaurant|AIRLINES|INSURANCE|MEDICAL|digitals))'
-
-    # # Find the text with the maximum sum of y-values
-    # max_sum_y = 0
-    # bottom_text = None
-    #
-    # for bounding_box, text, confidence in result:
-    #     sum_y = sum(point[1] for point in bounding_box)
-    #     if sum_y > max_sum_y:
-    #         max_sum_y = sum_y
-    #         bottom_text = text
-
-    # Find the longest text
-    # longest_text = max(result, key=lambda x: len(x[1]))[1]
-    # Process the EasyOCR results
-        # if text == longest_text and text == bottom_text and address_regex.match(text):
-        #     extracted_data['Address'] = text
-        # elif text == bottom_text and address_regex.match(text):
-        #     extracted_data['Address'] = bottom_text
-        # elif address_regex.match(text):
-        #     extracted_data['Address'] = text
 
     text_name = result[0][1]
     text_designation = result[1][1]
@@ -120,11 +99,6 @@ def extract_information(result,result_1):
             extracted_data['Website'] = stripped_text
             # Exit the loop after finding the first valid website
             break
-        # elif 'Designation' not in extracted_data:
-        #     extracted_data['Designation'] = text
-    # for bounding_box, text, confidence in result:
-    #     if len(text) > 5 and re.match(company_name_regex, text):
-    #         extracted_data['Company Name'] = text
 
     for bounding_box, text, confidence in result:
         if re.findall(r'^\+?\d*\s?\(?\d{3}\)?[\-\.\s]?\d{3}[\-\.\s]?\d{4}?', text):
@@ -132,11 +106,6 @@ def extract_information(result,result_1):
         elif re.findall(r'\+?\d+-\d+-\d+',text):
             invalid_numbers.append(text)
 
-        # elif re.findall(r'^\w+[\.+\"\-_]?[\w+]?@\w+[\.+\"\-_\w]?.[a-zA-Z]{2,}?', text):
-        #     extracted_data['Email'] = text
-        # elif re.findall(r'^(www\.)?[\w-]+\.[a-zA-Z]{2,}?', text):
-        #     extracted_data['Website'] = text
-        # Assign phone numbers to extracted_data
     if len(phone_numbers) >= 2:
         extracted_data['Primary Number'] = ''.join(phone_numbers[0])
         extracted_data['Secondary Number'] = ''.join(phone_numbers[1])
@@ -175,33 +144,6 @@ def extract_information(result,result_1):
             extracted_data['Company Name'] = text
             # Exit the loop once a keyword is found
             break
-
-
-        # # Extract name based on variations
-        # if re.findall(r'\b[A-Z][a-z]+(?: [A-Z]\.?| [A-Z][a-z]+(?: [A-Z]\.?)?)? [A-Z][a-z]+\b', text):
-        #     extracted_data['Name'] = text
-        # # Extract designation using EasyOCR's built-in text recognition
-        # elif 'Designation' not in extracted_data:
-        #     extracted_data['Designation'] = text
-        # # Extract company name without explicit "Company"
-        # elif len(text) > 5:  # Assuming company name is generally longer than 5 characters
-        #     extracted_data['Company Name'] = text
-        # # Extract phone numbers with various formats
-        # elif re.findall(r'^\+?\d*\s?\(?\d{3}\)?[\-\.\s]?\d{3}[\-\.\s]?\d{4}?', text):
-        #     if 'Primary Number' not in extracted_data:
-        #          extracted_data['Primary Number'] = text
-        #     elif 'Secondary Number' not in extracted_data:
-        #         extracted_data['Secondary Number'] = text
-        # # Extract email based on pattern
-        # elif re.findall(r'^\w+[\.+\"\-_]?[\w+]?@\w+[\.+\"\-_\w]?.[a-zA-Z]{2,}?', text):
-        #     extracted_data['Email'] = text
-        # # Extract website with variations
-        # elif re.findall(r'^(www\.)?[\w-]+\.[a-zA-Z]{2,}?', text):
-        #     extracted_data['Website'] = text
-        # Everything else as address
-        # else:
-        #     extracted_data['Address'] = text
-
     return extracted_data
 
 #-------------------  Push Data  --------------------#
@@ -212,9 +154,6 @@ def insert_data(extracted_data,image_bytes):
         INSERT INTO business_card (name, company_name, primary_number, secondary_number, email, website, address, image)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """
-        # # Encode the image as bytes
-        # image_bytes = io.BytesIO(file_bytes).read()
-
         # Define the data to insert
         data_to_insert = (
             extracted_data['Name'],
@@ -258,19 +197,6 @@ def extract_and_upload():
             # Insert data into the database
             insert_data(extracted_data, file_bytes)
 
-            # df_data = {'Field': [], 'Value': []}
-            #
-            # for key, value in extracted_data.items():
-            #     if key == 'Primary Number' or key == 'Secondary Number':
-            #         for idx, number in enumerate(value):
-            #             df_data['Field'].append(f"{key} {idx + 1}")
-            #             df_data['Value'].append(number)
-            #     else:
-            #         df_data['Field'].append(key)
-            #         df_data['Value'].append(value)
-            #
-            # df = pd.DataFrame(df_data)
-            # st.table(data=df.T)
         with data_col:
             st.write('')
             st.write('')
@@ -314,34 +240,8 @@ def delete_data(selected_row):
     except Exception as error:
         st.error(f'Error: {error}')
 
-# def modify_data():
-#     st.write('Select a row to update or delete:')
-#     selected_row_name = st.selectbox("Select a row:", [row[0] for row in data])
-#
-#     if selected_row_name:
-#         # Fetch the details of the selected row
-#         selected_row = [row for row in data if row[0] == selected_row_name][0]
-#
-#         # Create input fields for new values
-#         new_values = {}
-#         for i, column in enumerate(extracted_data.keys()):
-#             new_values[column] = st.text_input(f'{column}:', selected_row[i])
-#
-#         # Add an update button
-#         if st.button('Update'):
-#             update_data(selected_row_name, new_values)
-#
-#         # Add a delete button
-#         if st.button('Delete'):
-#             delete_data(selected_row)
-#
-#         # Display selected row details
-#         st.write('Selected Row Details:')
-#         st.write({k: v for k, v in zip(extracted_data.keys(), selected_row)})
-
-# def download_data():
-
 # --------------------------- STREAMLIT APP --------------------------#
+
 # Set the layout to wide
 st.set_page_config(layout="wide")
 # Center-align the title
@@ -443,38 +343,15 @@ elif selected == 'Modify':
                 if st.button('Delete'):
                     delete_data(selected_row)
 
-        # elif selected_col_name:
-        #     st.error("please enter a row")
-
 elif selected == 'Download':
     st.title("Download Data")
 
     # Fetch data from the database
     df = fetch_data()
     df_without_image = df.iloc[:, :-1]  # Exclude the last column (image)
-    # # Provide options for downloading
-    # download_format = st.selectbox("Select download format:", ["CSV", "PDF"])
 
     # Download as CSV
     csv_data = df_without_image.to_csv(index=True).encode('utf-8')
     st.download_button(label="🔻 Download data as CSV 🔻", data=csv_data,
                        file_name='business_card_info.csv', mime='text/csv')
-#------------------------------update section -------------------------#
-       # st.title("Download Data")
-       #
-       #  # Fetch data from the database
-       #  df = fetch_data()
-       #
-       #  # Provide options for downloading
-       #  download_format = st.selectbox("Select download format:", ["CSV", "PDF"])
-       #
-       #  if download_format == "CSV":
-       #      # Download as CSV
-       #      csv_data = df.to_csv(index=False)
-       #      st.download_button(label="🔻 Download data as CSV 🔻", data=csv_data,
-       #                         file_name='business_card_info.csv', mime='text/csv')
-       #  else:
-       #      # Download as PDF
-       #      pdf_data = df.to_pdf()
-       #      st.download_button(label="🔻 Download data as PDF 🔻", data=pdf_data,
-       #                         file_name='business_card_info.pdf', mime='application/pdf')
+
