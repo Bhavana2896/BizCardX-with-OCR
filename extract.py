@@ -32,10 +32,10 @@ extracted_data = {
 # Establish a connection to your PostgreSQL database
 conn = psycopg2.connect(
     host='localhost',
-    user='bhavana',
-    password='Girish47$',
+    user=[your_username],
+    password=[your_password],
     port=5432,
-    database='Biz'
+    database=[database_name]
 )
 # Create a cursor object to execute SQL commands
 cursor = conn.cursor()
